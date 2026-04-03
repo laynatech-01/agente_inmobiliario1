@@ -56,19 +56,18 @@ async function enviarMensaje() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                pregunta: texto,
-                prompt: PROMPT_BASE,
-                historial: historial // 👈 Enviamos toda la conversación acumulada
+                mensajes: historial, // ✅ Enviamos el array con la memoria
+                prompt: PROMPT_BASE
             })
         });
 
         const data = await r.json();
         const respuestaIA = data.answer || "Sin respuesta";
 
-        // 2. Guardar lo que responde el bot en el historial
+        // 2. Guardar lo que responde el bot en el historial para la próxima pregunta
         historial.push({ role: "assistant", content: respuestaIA });
 
-        // 3. Mostrar la respuesta usando innerHTML para soportar el formato de Marked
+        // 3. Mostrar la respuesta
         const botDiv = document.getElementById(id);
         if (typeof marked !== 'undefined') {
             botDiv.innerHTML = marked.parse(respuestaIA);
@@ -88,10 +87,7 @@ function agregarMensaje(texto, clase, id = null) {
     const box = document.getElementById("chat-box");
     const div = document.createElement("div");
     div.className = "msg " + clase;
-    
-    // Si es mensaje del bot (tiene ID), ponemos el texto temporalmente
     div.innerText = texto; 
-    
     if (id) div.id = id;
     box.appendChild(div);
     box.scrollTop = box.scrollHeight;
